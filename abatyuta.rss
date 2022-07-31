@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+
+<channel>
+  <title>@abatyuta Instagram Collection</title>
+  <link>https://a.batyuta.com</link>
+  <description>Instagram Album</description>
+  <image>
+      <url>media/avatar.jpg</url>
+      <title>#кедысорокшестогоразмера</title>
+      <link>https://a.batyuta.com</link>
+  </image>
+  <webMaster>@abatyuta</webMaster>
+  <item>
+    <title>2022-07-31</title>
+    <link>http://maps.google.com/maps?q=loc:48.151578458803,17.109712064266%20(Old%20Town,%20Bratislava)</link>
+    <description>Дни коронации в Братиславе проходят в последние выходные Июля.
+
+                            #кедысорокшестогоразмера
+
+                            @abatyuta @batyuta</description>
+    <author>@abatyuta</author>
+    <enclosure url="media/20220731_113932_2.mpg" length="9218151" type="video/mpeg"/>
+  </item>
+</channel>
+
+</rss>
