@@ -15,6 +15,7 @@ self.addEventListener('push', (event) => {
   console.log(`Service Worker got Notification ${notification}`);
 });
 
+const HOSTNAME = 'a.batyuta.com';
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   if (event.action === 'add-subscription') {
@@ -22,7 +23,7 @@ self.addEventListener('notificationclick', (event) => {
     self.registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: publicKey
-    }).then(subscription=> postToServer(SERVER_URL + '/add-subscription', subscription)
+    }).then(subscription=> postToServer(SERVER_URL + '/add-subscription', {data:subscription, hostname: HOSTNAME})
         .then(() => console.log('Service Worker got Subscription ' + JSON.stringify(subscription) )));
   }
 }, false);
