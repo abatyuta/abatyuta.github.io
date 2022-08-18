@@ -1,4 +1,6 @@
 const SERVER_URL = 'https://batyuta-web-push-server.herokuapp.com';
+const HOSTNAME = 'a.batyuta.com';
+
 // const SERVER_URL = 'http://localhost:8080';
 
 self.addEventListener('push', (event) => {
@@ -8,14 +10,13 @@ self.addEventListener('push', (event) => {
   //   icon: image
   // }
   self.registration.showNotification(
-    notification.title, 
+    notification.title,
     notification.options
   );
   notification = JSON.stringify(notification);
   console.log(`Service Worker got Notification ${notification}`);
 });
-
-const HOSTNAME = 'a.batyuta.com';
+// @deprecated
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   if (event.action === 'add-subscription') {

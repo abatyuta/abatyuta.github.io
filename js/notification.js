@@ -16,56 +16,109 @@ const urlB64ToUint8Array = (base64String) => {
 };
 
 const VAPID_PUBLIC_KEY = urlB64ToUint8Array('BJvDtrL7VyLdBfx_yKq6p5wagwN9V5aPoGXD_R_wVoEQHNepGE26LTbFfoufPIb4Dofl0wyfXC2dHMYJgJOvIyM');
+const SERVER_URL = 'https://batyuta-web-push-server.herokuapp.com';
+const HOSTNAME = 'a.batyuta.com';
 
 /* Push notification logic. */
 
 async function registerServiceWorker() {
-    navigator.serviceWorker.register('service-worker.js')
-        .then((serviceWorker) => console.log(`Service Worker was Registered ${serviceWorker}`))
-        .catch(reason => console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`))
-    ;
+    return navigator.serviceWorker.register('service-worker.js')
+        .then((serviceWorker) =>
+            console.log(`Service Worker was Registered ${serviceWorker}`)
+        )
+        .catch(reason =>
+            console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`)
+        );
+}
+
+async function getRegistration() {
+    return navigator.serviceWorker.getRegistration();
 }
 
 async function unregisterServiceWorker() {
-    await navigator.serviceWorker.getRegistration()
-        .then((serviceWorker) => serviceWorker.unregister().then(() => console.log(`Service Worker was Registered`)))
-        .catch(reason => console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`))
+    getRegistration()
+        .then((serviceWorker) =>
+            serviceWorker.unregister().then(() => console.log(`Service Worker was Registered`))
+        )
+        .catch(reason =>
+            console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`)
+        );
+}
+
+async function showSubscriptionPrompt(registration) {
+    registration.showNotification(
+        '@abatyuta Instagram Collection',
+        {
+            requireInteraction: true,
+            actions: [
+                {
+                    action: 'add-subscription',
+                    title: 'Subscribe',
+                }
+            ],
+            data: {
+                publicKey: VAPID_PUBLIC_KEY
+            },
+            icon: 'https://a.batyuta.com/media/avatar.jpg',
+            body: 'Подпишись на обновления нажав кноку <b>Subscribe</b>'
+        }
+    ).then(() =>
+        console.log('Subscription prompt has been done')
+    );
+}
+
+async function silentSubscription(registration) {
+    registration.pushManager.getSubscription().then(subscription => {
+        if (!subscription) {
+            registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: VAPID_PUBLIC_KEY
+            }).then(subscription =>
+                postToServer(SERVER_URL + '/add-subscription', {
+                    data: subscription,
+                    hostname: HOSTNAME
+                }).then(() =>
+                    console.log('Service Worker got Subscription ' + JSON.stringify(subscription))
+                )
+            );
+        }
+    });
 }
 
 async function subscribe() {
-    registerServiceWorker().then(() => {
-            Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        navigator.serviceWorker.getRegistration()
-                            .then(registration => {
-                                    registration.showNotification(
-                                        '@abatyuta Instagram Collection',
-                                        {
-                                            requireInteraction: true,
-                                            actions: [
-                                                {
-                                                    action: 'add-subscription',
-                                                    title: 'Subscribe',
-                                                }
-                                            ],
-                                            data: {
-                                                publicKey: VAPID_PUBLIC_KEY
-                                            },
-                                            icon: 'https://a.batyuta.com/media/avatar.jpg',
-                                            body: 'Подпишись на обновления нажав кноку <b>Subscribe</b>'
-                                        }
-                                    );
-                                }
-                            );
-                    } else {
-                        unregisterServiceWorker()
-                            .then(() => {
-                                    alert('Notification is not allowed');
-                                }
-                            )
-                    }
-                }
-            )
+    getRegistration().then(registration => {
+        if (!registration) {
+            registerServiceWorker()
+                .then(_registration => _subscribe(_registration));
+        } else {
+            _subscribe(registration);
         }
-    );
+    });
 }
+
+function _subscribe(registration) {
+    Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                // howSubscriptionPrompt(registration)
+                silentSubscription(registration)
+                    .then(() =>
+                        console.log('Notification has been subscribed')
+                    );
+            } else {
+                unregisterServiceWorker()
+                    .then(() =>
+                        console.log('Notification is not allowed!')
+                    );
+            }
+        }
+    )
+}
+
+function onStartUp() {
+    subscribe()
+        .then(() =>
+            console.log('Notify to subscribe')
+        );
+}
+
+onStartUp();
