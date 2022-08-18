@@ -177,3 +177,4 @@ function getMediaSrc(item) {
 }
 
 loadJson();
+onStartUp();

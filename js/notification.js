@@ -1,4 +1,16 @@
 /* Utility functions. */
+async function postToServer(url, data) {
+    let request = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
+    if (data !== undefined) {
+        request.body = JSON.stringify(data);
+    }
+    return await fetch(url, request);
+}
 
 // Convert a base64 string to Uint8Array.
 // Must do this so the server can understand the VAPID_PUBLIC_KEY.
@@ -102,5 +114,3 @@ function onStartUp() {
             console.log('Notify to subscribe')
         );
 }
-
-onStartUp();

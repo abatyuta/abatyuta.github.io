@@ -11,17 +11,3 @@ self.addEventListener('push', (event) => {
   notification = JSON.stringify(notification);
   console.log(`Service Worker got Notification ${notification}`);
 });
-
-/* Utility functions. */
-async function postToServer(url, data) {
-  let request = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  };
-  if (data !== undefined) {
-    request.body = JSON.stringify(data);
-  }
-  return await fetch(url, request);
-}
