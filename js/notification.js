@@ -33,47 +33,41 @@ const HOSTNAME = 'a.batyuta.com';
 
 /* Push notification logic. */
 
-async function registerServiceWorker() {
-    return navigator.serviceWorker.register('service-worker.js')
-        .then((serviceWorker) =>
-            console.log(`Service Worker was Registered ${serviceWorker}`)
-        )
-        .catch(reason =>
-            console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`)
-        );
-}
-
-async function getRegistration() {
-    return navigator.serviceWorker.getRegistration();
-}
-
 async function unregisterServiceWorker() {
-    getRegistration()
-        .then((serviceWorker) =>
+    navigator.serviceWorker.getRegistration()
+        .then(serviceWorker =>
             serviceWorker.unregister()
                 .then(() =>
-                    console.log(`Service Worker was Registered`)
+                    console.log(`Service Worker was Unregistered`)
                 )
         )
         .catch(reason =>
-            console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`)
+            console.log(`Service Worker Unregistering was failed with reason: ${JSON.stringify(reason)}`)
         );
 }
 
 async function subscribe() {
-    getRegistration().then(registration => {
-        if (!registration) {
-            registerServiceWorker()
-                .then(_registration =>
-                    _subscribe(_registration)
-                );
-        } else {
-            _subscribe(registration);
-        }
-    });
+    navigator.serviceWorker.getRegistration()
+        .then(registration => {
+                if (!registration) {
+                    navigator.serviceWorker.register('service-worker.js')
+                        .then(_registration =>
+                            _subscribe(_registration)
+                        )
+                        .catch(reason =>
+                            console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`)
+                        );
+                } else {
+                    _subscribe(registration);
+                }
+            }
+        )
+        .catch(reason =>
+            console.log(`Service Worker getting was failed with reason: ${JSON.stringify(reason)}`)
+        );
 }
 
-function _subscribe(registration) {
+async function _subscribe(registration) {
     Notification.requestPermission().then(permission => {
             if (permission === 'granted') {
                 __subscribe(registration)
