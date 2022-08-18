@@ -38,36 +38,47 @@ async function getRegistration() {
 async function unregisterServiceWorker() {
     getRegistration()
         .then((serviceWorker) =>
-            serviceWorker.unregister().then(() => console.log(`Service Worker was Registered`))
+            serviceWorker.unregister()
+                .then(() =>
+                    console.log(`Service Worker was Registered`)
+                )
         )
         .catch(reason =>
             console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`)
         );
 }
 
-async function showSubscriptionPrompt(registration) {
-    registration.showNotification(
-        '@abatyuta Instagram Collection',
-        {
-            requireInteraction: true,
-            actions: [
-                {
-                    action: 'add-subscription',
-                    title: 'Subscribe',
-                }
-            ],
-            data: {
-                publicKey: VAPID_PUBLIC_KEY
-            },
-            icon: 'https://a.batyuta.com/media/avatar.jpg',
-            body: 'Подпишись на обновления нажав кноку <b>Subscribe</b>'
+async function subscribe() {
+    getRegistration().then(registration => {
+        if (!registration) {
+            registerServiceWorker()
+                .then(_registration =>
+                    _subscribe(_registration)
+                );
+        } else {
+            _subscribe(registration);
         }
-    ).then(() =>
-        console.log('Subscription prompt has been done')
-    );
+    });
 }
 
-async function silentSubscription(registration) {
+function _subscribe(registration) {
+    Notification.requestPermission().then(permission => {
+            if (permission === 'granted') {
+                __subscribe(registration)
+                    .then(() =>
+                        console.log('Notification has been subscribed')
+                    );
+            } else {
+                unregisterServiceWorker()
+                    .then(() =>
+                        console.log('Notification is not allowed!')
+                    );
+            }
+        }
+    )
+}
+
+async function __subscribe(registration) {
     registration.pushManager.getSubscription().then(subscription => {
         if (!subscription) {
             registration.pushManager.subscribe({
@@ -83,35 +94,6 @@ async function silentSubscription(registration) {
             );
         }
     });
-}
-
-async function subscribe() {
-    getRegistration().then(registration => {
-        if (!registration) {
-            registerServiceWorker()
-                .then(_registration => _subscribe(_registration));
-        } else {
-            _subscribe(registration);
-        }
-    });
-}
-
-function _subscribe(registration) {
-    Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                // howSubscriptionPrompt(registration)
-                silentSubscription(registration)
-                    .then(() =>
-                        console.log('Notification has been subscribed')
-                    );
-            } else {
-                unregisterServiceWorker()
-                    .then(() =>
-                        console.log('Notification is not allowed!')
-                    );
-            }
-        }
-    )
 }
 
 function onStartUp() {
