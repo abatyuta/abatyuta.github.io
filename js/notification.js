@@ -20,7 +20,7 @@ const VAPID_PUBLIC_KEY = urlB64ToUint8Array('BJvDtrL7VyLdBfx_yKq6p5wagwN9V5aPoGX
 /* Push notification logic. */
 
 async function registerServiceWorker() {
-    navigator.serviceWorker.register('js/service-worker.js')
+    navigator.serviceWorker.register('service-worker.js')
         .then((serviceWorker) => console.log(`Service Worker was Registered ${serviceWorker}`))
         .catch(reason => console.log(`Service Worker registration was failed with reason: ${JSON.stringify(reason)}`))
     ;
