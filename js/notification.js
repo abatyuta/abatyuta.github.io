@@ -29,6 +29,7 @@ const urlB64ToUint8Array = (base64String) => {
 
 const VAPID_PUBLIC_KEY = urlB64ToUint8Array('BJvDtrL7VyLdBfx_yKq6p5wagwN9V5aPoGXD_R_wVoEQHNepGE26LTbFfoufPIb4Dofl0wyfXC2dHMYJgJOvIyM');
 const SERVER_URL = 'https://batyuta-web-push-server.herokuapp.com';
+// const SERVER_URL = 'http://localhost:8080';
 const HOSTNAME = 'a.batyuta.com';
 
 /* Push notification logic. */
