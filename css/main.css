@@ -54,4 +54,50 @@
     width: 100%;
 }
 .btnPlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    width: 100%;
+    padding: 0;
+    text-align: center;
+    background: 0 0;
+    border: 0;
+    opacity: .5;
+    transition: opacity .15s ease
+}
+
+
+.btnPlay:focus, .btnPlay:hover {
+    /*color: #fff;*/
+    text-decoration: none;
+    outline: 0;
+    opacity: .9
+}
+
+.btnPlay-icon {
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-position: 50%;
+    background-size: 100% 100%
+}
+
+.square {
+    width: 100%;
+}
+
+.square:after {
+    display: block;
+    padding-bottom: 100%;
+}
+
+.btn-carousel {
+    color: black;
+}
+
+.btn-carousel:focus, .btn-carousel:hover {
+    color: black;
 }

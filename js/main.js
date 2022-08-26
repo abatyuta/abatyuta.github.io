@@ -21,17 +21,6 @@ function loadJson() {
         })
 }
 
-function getNavigationButtons(item) {
-    if (item.child.length > 1) {
-        let toolbar = createTag('div', 'btn-toolbar justify-content-between');
-        toolbar.appendChild(createTag('button', 'btn btn-primary bi-arrow-left-square btnPrev disabled', '&nbsp;Prev'))
-        toolbar.appendChild(createTag('button', 'btn btn-primary bi-arrow-right-square btnNext', '&nbsp;Next'))
-        return toolbar;
-    } else {
-        return undefined;
-    }
-}
-
 function createTag(tagName, clazz, text) {
     let buttonElement = document.createElement(tagName);
     if (clazz !== undefined) {
@@ -54,7 +43,6 @@ function getMapLink(item) {
 }
 
 function addItem(customContainer, item) {
-    item.position = 0;
     let colDiv = createTag('div', 'col p-1 border border-dark rounded');
     let cardDiv = createTag('div', 'card shadow-sm');
     colDiv.appendChild(cardDiv);
@@ -63,10 +51,7 @@ function addItem(customContainer, item) {
     cardDiv.appendChild(mediaDiv);
 
     let cardBodyDiv = createTag('div', 'card-body');
-    let navigationButtons = getNavigationButtons(item);
-    if (navigationButtons !== undefined) {
-        cardBodyDiv.appendChild(navigationButtons);
-    }
+
     cardBodyDiv.appendChild(createTag('p', 'card-text', item.description));
     let nextDiv = createTag('div', 'd-flex justify-content-between align-items-center');
     let mapLink = getMapLink(item);
@@ -77,58 +62,18 @@ function addItem(customContainer, item) {
     cardBodyDiv.appendChild(nextDiv);
     colDiv.appendChild(cardBodyDiv);
 
-    let btnNext = colDiv.getElementsByClassName('btnNext');
-    if (btnNext !== undefined && btnNext.length > 0) {
-        btnNext[0].onclick = function () {
-            item.position++;
-            disableButtons(item, btnNext[0]);
-            if (item.position >= item.child.length) {
-                item.position = item.child.length - 1;
-            }
-
-            cardDiv.removeChild(cardDiv.getElementsByClassName('mediaCard')[0]);
-            cardDiv.appendChild(getMediaSrc(item));
-        }
-    }
-    let btnPrev = colDiv.getElementsByClassName('btnPrev');
-
-    if (btnPrev !== undefined && btnPrev.length > 0) {
-        btnPrev[0].onclick = function () {
-            item.position--;
-            disableButtons(item, btnPrev[0]);
-            if (item.position < 0) {
-                item.position = 0;
-            }
-
-            cardDiv.removeChild(cardDiv.getElementsByClassName('mediaCard')[0]);
-            cardDiv.appendChild(getMediaSrc(item));
-        }
-    }
     customContainer.appendChild(colDiv);
 }
 
-function disableButtons(item, control) {
-    let parent = control.parentNode;
-
-    let btnNext = parent.getElementsByClassName('btnNext')[0];
-    let btnPrev = parent.getElementsByClassName('btnPrev')[0];
-
-    btnNext.classList.remove('disabled');
-    btnPrev.classList.remove('disabled');
-
-    btnNext.disabled = item.position >= item.child.length - 1;
-    btnPrev.disabled = item.position <= 0;
-}
-
 function createImage(child) {
-    let media = createTag('img', 'bd-placeholder-img card-img-top');
+    let media = createTag('img', 'bd-placeholder-img card-img-top d-block w-100');
     media.src = child.fileName;
     media.setAttribute('alt', 'Lights');
     return media;
 }
 
 function createVideo(child) {
-    let media = createTag('video', 'bd-placeholder-img card-img-top');
+    let media = createTag('video', 'bd-placeholder-img card-img-top d-block w-100');
     const src = createTag('source');
     src.src = child.fileName;
     media.appendChild(src);
@@ -136,44 +81,111 @@ function createVideo(child) {
     return media;
 }
 
-function getMediaSrc(item) {
-    let media;
-    let divElement = createTag('div', 'mediaCard mx-auto');
-    let child = item.child[item.position];
-    if (child.type === 'IMAGE') {
-        media = createImage(child);
-        divElement.appendChild(media);
-    } else {
-        let image;
-        if (child.image !== undefined) {
-            image = createImage(child.image);
-            divElement.appendChild(image);
-        }
-        media = createVideo(child);
-        media.classList.add('d-none');
-        divElement.appendChild(media);
+let id = 1;
+const mdbTarget = '-bs';
 
-        let divToolbar = createTag('div', 'btn-toolbar');
-        let buttonPlay = createTag('button', 'btn btn-danger bi-play-btn-fill btn-block btnPlay', '&nbsp;Play');
-        divToolbar.appendChild(buttonPlay);
-        media.onclick = function () {
-            if (image !== undefined) {
-                image.classList.add('d-none');
-            }
-            media.classList.remove('d-none');
-            this.play();
+function getMediaSrc(item) {
+    let divMediaCard = createTag('div', 'mediaCard mx-auto');
+    let divCarousel = createTag('div', 'carousel slide');
+    divCarousel.id = 'carousel-' + id;
+    // divCarousel.setAttribute('data'+mdbTarget+'-ride', 'carousel');
+    divMediaCard.appendChild(divCarousel)
+
+    let divCarouselIndicators = createTag('div', 'indicators');
+    // divCarousel.appendChild(divCarouselIndicators);
+    for (let i = 0; i < item.child.length; i++) {
+        let indicatorBtn = createTag('button');
+        indicatorBtn.setAttribute('type', 'button');
+        indicatorBtn.setAttribute('data' + mdbTarget + '-target', divCarousel.id);
+        indicatorBtn.setAttribute('aria-label', 'Slide' + (i + 1));
+        indicatorBtn.setAttribute('data' + mdbTarget + '-slide-to', '' + i);
+        if (i === 0) {
+            indicatorBtn.classList.add('active');
+            indicatorBtn.setAttribute('aria-current', 'true');
         }
-        buttonPlay.onclick = function () {
-            if (image !== undefined) {
-                image.classList.add('d-none');
-            }
-            media.classList.remove('d-none');
-            media.play();
-        }
-        divElement.appendChild(divToolbar);
+        divCarouselIndicators.appendChild(indicatorBtn);
     }
 
-    return divElement;
+    let divCarouselInner = createTag('div', 'carousel-inner');
+    divCarousel.appendChild(divCarouselInner)
+    let b = true;
+    item.child.forEach(child => {
+        let media;
+        let divCarouselItem = createTag('div', 'carousel-item');
+        if (b) {
+            b = false;
+            divCarouselItem.classList.add('active');
+        }
+        divCarouselInner.appendChild(divCarouselItem);
+        if (child.type === 'IMAGE') {
+            media = createImage(child);
+            divCarouselItem.appendChild(media);
+        } else {
+            let image;
+            if (child.image !== undefined) {
+                image = createImage(child.image);
+                divCarouselItem.appendChild(image);
+            }
+            media = createVideo(child);
+            media.classList.add('d-none');
+            divCarouselItem.appendChild(media);
+
+            let buttonPlay = createTag('button', 'btnPlay align-items-end',
+                '<span class="bi-play-circle-fill btnPlay-icon img-thumbnail bg-prymary btn-carousel m-2" aria-hidden="false"></span>\n' +
+                '<span class="visually-hidden">&nbsp;Play</span>');
+            media.onclick = function () {
+                play(image, media);
+            }
+            media.addEventListener('ended', () => {
+                ended(image, media);
+            }, false);
+            buttonPlay.onclick = function () {
+                play(image, media);
+            }
+            media.addEventListener('onfocus', ()=>ended(image, media));
+            divCarouselItem.appendChild(buttonPlay);
+        }
+    });
+    if (item.child.length > 1) {
+        <!-- Controls -->
+        let btnCarouselPrev = createBtnCarousel('prev', divCarousel.id);
+        divCarousel.appendChild(btnCarouselPrev);
+        let btnCarouselNext = createBtnCarousel('next', divCarousel.id);
+        divCarousel.appendChild(btnCarouselNext);
+    }
+    id++;
+    return divMediaCard;
+}
+
+function play(image, media) {
+    if (image !== undefined) {
+        image.classList.add('d-none');
+    }
+    media.classList.remove('d-none');
+    if (media.paused) {
+        media.play();
+    } else {
+        media.pause();
+    }
+}
+
+
+function ended(image, media) {
+    if (image !== undefined) {
+        image.classList.remove('d-none');
+    }
+    media.classList.add('d-none');
+}
+
+function createBtnCarousel(type, divCarouselId) {
+    let btnCarousel = createTag('button', 'carousel-control-' + type + ' align-items-end',
+        '<span class="bi-caret-'+(type === 'prev'?'left':'right')+'-square-fill img-thumbnail bg-prymary btn-carousel m-2" aria-hidden="true"></span>\n' +
+        '<span class="visually-hidden btn-carousel">' + type + '</span>'
+    );
+    btnCarousel.setAttribute('data' + mdbTarget + '-target', '#' + divCarouselId);
+    btnCarousel.setAttribute('data' + mdbTarget + '-slide', type);
+
+    return btnCarousel;
 }
 
 loadJson();
