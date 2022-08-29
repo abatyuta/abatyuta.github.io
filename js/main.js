@@ -142,7 +142,7 @@ function getMediaSrc(item) {
             buttonPlay.onclick = function () {
                 play(image, media);
             }
-            media.addEventListener('onfocus', ()=>ended(image, media));
+            media.addEventListener('onfocus', () => ended(image, media));
             divCarouselItem.appendChild(buttonPlay);
         }
     });
@@ -179,7 +179,7 @@ function ended(image, media) {
 
 function createBtnCarousel(type, divCarouselId) {
     let btnCarousel = createTag('button', 'carousel-control-' + type + ' align-items-end',
-        '<span class="bi-caret-'+(type === 'prev'?'left':'right')+'-square-fill img-thumbnail bg-prymary btn-carousel m-2" aria-hidden="true"></span>\n' +
+        '<span class="bi-caret-' + (type === 'prev' ? 'left' : 'right') + '-square-fill img-thumbnail bg-prymary btn-carousel m-2" aria-hidden="true"></span>\n' +
         '<span class="visually-hidden btn-carousel">' + type + '</span>'
     );
     btnCarousel.setAttribute('data' + mdbTarget + '-target', '#' + divCarouselId);
