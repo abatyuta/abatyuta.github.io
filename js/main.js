@@ -10,12 +10,22 @@ function showMore() {
     }
     index = nextIndex;
 }
-
+function getURLParameter(sParam) {
+    const sPageURL = window.location.search.substring(1);
+    const sURLVariables = sPageURL.split('&');
+    for (let i = 0; i < sURLVariables.length; i++) {
+        const sParameterName = sURLVariables[i].split('=');
+        if (sParameterName[0] === sParam)
+        {
+            return sParameterName[1];
+        }
+    }
+}
 function loadJson() {
     fetch("data/metadata.json")
         .then(response => {
             response.json().then(function (value) {
-                let id = jQuery.url.param('id');
+                let id = getURLParameter('id');
                 if(id !== undefined) {
                     items = value.filter(function (item){
                         return item.id === id;
