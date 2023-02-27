@@ -1,6 +1,6 @@
-var index = 0;
+let index = 0;
 const ITEMS_ON_PAGE = 6;
-var items;
+let items;
 
 function showMore() {
     let customContainer = document.getElementById("customContainer");
@@ -15,7 +15,16 @@ function loadJson() {
     fetch("data/metadata.json")
         .then(response => {
             response.json().then(function (value) {
-                items = value;
+                let id = jQuery.url.param('id');
+                if(id !== undefined) {
+                    items = value.filter(function (item){
+                        return item.id === id;
+                    });
+
+                }
+                if(items === undefined || items.length === 0 ) {
+                    items = value;
+                }
                 showMore();
             });
         })
